@@ -79,7 +79,7 @@ async function sendMessage() {
     enableInput();
 }
 
-// Вызов Gemini API
+// Вызов Gemini API с обработкой ошибок
 async function callGeminiAPI(message) {
     const apiKey = getApiKey();
     const url = `${CONFIG.GEMINI_API_URL}?key=${apiKey}`;
@@ -130,21 +130,51 @@ async function callGeminiAPI(message) {
         ]
     };
     
-    const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestData)
-    });
+    let retryCount = 0;
+    const maxRetries = 3;
+    const baseDelay = 1000; // 1 секунда
     
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error?.message || 'Ошибка API');
+    while (retryCount < maxRetries) {
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData)
+            });
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                
+                // Проверяем ошибку лимита
+                if (errorData.error?.code === 429 || errorData.error?.message?.includes('quota')) {
+                    const retryDelay = baseDelay * Math.pow(2, retryCount); // Экспоненциальная задержка
+                    
+                    if (retryCount < maxRetries - 1) {
+                        console.log(`Лимит API, повторная попытка через ${retryDelay}мс`);
+                        showNotification(`Лимит запросов. Повторная попытка через ${Math.ceil(retryDelay/1000)}с...`, 'info');
+                        await new Promise(resolve => setTimeout(resolve, retryDelay));
+                        retryCount++;
+                        continue;
+                    } else {
+                        throw new Error('Превышен дневной лимит запросов. Попробуйте завтра.');
+                    }
+                }
+                
+                throw new Error(errorData.error?.message || 'Ошибка API');
+            }
+            
+            const data = await response.json();
+            return data.candidates[0].content.parts[0].text;
+            
+        } catch (error) {
+            if (retryCount === maxRetries - 1) {
+                throw error;
+            }
+            retryCount++;
+        }
     }
-    
-    const data = await response.json();
-    return data.candidates[0].content.parts[0].text;
 }
 
 // Добавление сообщения в чат
