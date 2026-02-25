@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini AI - Профессиональный ассистент</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Боковая панель -->
+        <aside class="sidebar">
+            <div class="logo-section">
+                <div class="logo">
+                    <div class="logo-icon">🤖</div>
+                    <div class="logo-text">
+                        <h1>Gemini AI</h1>
+                        <p>Профессиональный ассистент</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="context-info">
+                <h3>Информация о модели</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Модель</span>
+                        <span class="info-value" id="model-name">gemini-2.5-flash</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Сообщений</span>
+                        <span class="info-value" id="context-messages">0</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Контекст</span>
+                        <span class="info-value" id="context-percentage">0%</span>
+                    </div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="context-progress" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="personality-section">
+                <h3>Стиль общения</h3>
+                <div class="personality-grid">
+                    <button class="personality-btn active" data-personality="default" onclick="changePersonality('default')">
+                        <div class="personality-icon">🤖</div>
+                        <div class="personality-text">
+                            <span class="personality-name">Стандартный</span>
+                            <span class="personality-desc">Дружелюбный помощник</span>
+                        </div>
+                    </button>
+                    <button class="personality-btn" data-personality="poet" onclick="changePersonality('poet')">
+                        <div class="personality-icon">🎭</div>
+                        <div class="personality-text">
+                            <span class="personality-name">Поэт</span>
+                            <span class="personality-desc">Творческие ответы</span>
+                        </div>
+                    </button>
+                    <button class="personality-btn" data-personality="teacher" onclick="changePersonality('teacher')">
+                        <div class="personality-icon">👨‍🏫</div>
+                        <div class="personality-text">
+                            <span class="personality-name">Учитель</span>
+                            <span class="personality-desc">Понятные объяснения</span>
+                        </div>
+                    </button>
+                    <button class="personality-btn" data-personality="friend" onclick="changePersonality('friend')">
+                        <div class="personality-icon">👫</div>
+                        <div class="personality-text">
+                            <span class="personality-name">Друг</span>
+                            <span class="personality-desc">Простое общение</span>
+                        </div>
+                    </button>
+                    <button class="personality-btn" data-personality="professional" onclick="changePersonality('professional')">
+                        <div class="personality-icon">👔</div>
+                        <div class="personality-text">
+                            <span class="personality-name">Профессионал</span>
+                            <span class="personality-desc">Деловой стиль</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="actions-section">
+                <button class="action-btn clear-btn" onclick="clearContext()">
+                    <span class="action-icon">🧹</span>
+                    <span class="action-text">Очистить контекст</span>
+                </button>
+                <button class="action-btn settings-btn" onclick="showSettings()">
+                    <span class="action-icon">⚙️</span>
+                    <span class="action-text">Настройки</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Основная область чата -->
+        <main class="chat-area">
+            <header class="header">
+                <div class="header-content">
+                    <div class="header-text">
+                        <h1>Чат с Gemini AI</h1>
+                        <p>Умный ассистент на базе Google Gemini</p>
+                    </div>
+                    <div class="header-status">
+                        <div class="status-indicator online"></div>
+                        <span class="status-text">В сети</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="chat-messages" id="chat-messages">
+                <div class="welcome-message">
+                    <div class="welcome-content">
+                        <div class="welcome-icon">👋</div>
+                        <div class="welcome-text">
+                            <h2>Добро пожаловать!</h2>
+                            <p>Введите ваш API ключ Google Gemini для начала общения</p>
+                            <button class="welcome-btn" onclick="showApiKeyDialog()">Настроить API ключ</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="typing-indicator" id="typing-indicator">
+                <div class="typing-content">
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                    <span class="typing-text">AI печатает...</span>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <div class="input-container">
+                    <textarea 
+                        id="message-input" 
+                        class="message-input" 
+                        placeholder="Введите ваше сообщение..."
+                        onkeypress="handleKeyPress(event)"
+                        rows="1"
+                    ></textarea>
+                    <button id="send-button" class="send-button" onclick="sendMessage()" disabled>
+                        <span class="send-icon">➤</span>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Модальное окно настроек -->
+    <div id="settings-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Настройки</h2>
+                <button class="modal-close" onclick="hideSettings()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="setting-group">
+                    <label for="api-key-input">API ключ Gemini</label>
+                    <input 
+                        type="password" 
+                        id="api-key-input" 
+                        class="setting-input"
+                        placeholder="Введите ваш API ключ..."
+                        value="AIzaSyAgqMSeDlfRAjULMwWAFLwa4PqB9BoWZMM"
+                    >
+                    <button class="setting-btn" onclick="saveApiKey()">Сохранить</button>
+                </div>
+                <div class="setting-info">
+                    <p>Получите API ключ в <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
