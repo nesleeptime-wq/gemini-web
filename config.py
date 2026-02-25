@@ -29,7 +29,7 @@ class GeminiConfig:
     # API ключ для Google Gemini
     API_KEY = os.getenv('GEMINI_API_KEY', 'AIzaSyAgqMSeDlfRAjULMwWAFLwa4PqB9BoWZMM')
     
-    # URL эндпоинта Gemini API - переключаем на более стабильную модель
+    # URL эндпоинта Gemini API - исправляем на рабочую модель
     API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
     
     # Модель для использования

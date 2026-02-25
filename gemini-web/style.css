@@ -19,6 +19,12 @@
     --radius-md: 0.5rem;
     --radius-lg: 0.75rem;
     --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --gold-accent: #FFD700;
+    --gold-gradient: linear-gradient(135deg, #FFD700, #FFA500);
+    --platinum-bg: #1a1a1a;
+    --platinum-card: #2d2d2d;
+    --platinum-border: #3d3d3d;
+    --platinum-text: #ffffff;
 }
 
 * {
